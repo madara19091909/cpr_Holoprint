@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class CprLogo extends StatelessWidget {
   const CprLogo({super.key, this.size = 44});
