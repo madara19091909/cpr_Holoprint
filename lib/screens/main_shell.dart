@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../services/history_store.dart';
 import '../widgets/cpr_logo.dart';
 import 'converter_page.dart';
 import 'home_page.dart';
