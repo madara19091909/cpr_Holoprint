@@ -105,7 +105,9 @@ class _ConverterPageState extends State<ConverterPage> {
   }
 
   Future<void> _handleDownload(List<dynamic> arguments) async {
-    if (_isSaving || arguments.length < 3) return;
+    if (_isSaving || arguments.length < 3) {
+      return;
+    }
     setState(() => _isSaving = true);
     try {
       final fileName = sanitizeDownloadName(arguments[0]?.toString() ?? 'CPR-Holoprint.mcpack');
@@ -222,7 +224,6 @@ class _ConverterPageState extends State<ConverterPage> {
                 initialSettings: InAppWebViewSettings(
                   javaScriptEnabled: true,
                   useOnDownloadStart: true,
-                  useOnShowFileChooser: true,
                   useShouldOverrideUrlLoading: true,
                   allowFileAccessFromFileURLs: false,
                   allowUniversalAccessFromFileURLs: false,
@@ -232,7 +233,7 @@ class _ConverterPageState extends State<ConverterPage> {
                   isInspectable: false,
                   allowsInlineMediaPlayback: true,
                 ),
-                onShouldOverrideUrlLoading: (controller, action) async {
+                shouldOverrideUrlLoading: (controller, action) async {
                   final target = action.request.url;
                   if (target == null) return NavigationActionPolicy.CANCEL;
                   if (target.host == 'holoprint-mc.github.io') {
