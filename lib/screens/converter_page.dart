@@ -28,24 +28,32 @@ class _ConverterPageState extends State<ConverterPage> {
   bool _isSaving = false;
 
   static const String _downloadBridgeScript = r'''(() => {
-    if (window.__cprDownloadBridgeInstalled) return;
+    if (window.__cprDownloadBridgeInstalled) {
+      return;
+    }
     window.__cprDownloadBridgeInstalled = true;
     const originalCreateObjectURL = URL.createObjectURL.bind(URL);
     const knownBlobs = new Map();
     URL.createObjectURL = function(blob) {
       const url = originalCreateObjectURL(blob);
-      try { knownBlobs.set(url, blob); } catch (_) {}
+      try { 
+        knownBlobs.set(url, blob); 
+      } catch (_) {}
       return url;
     };
 
     async function sendBlob(blob, filename) {
-      if (!blob || !window.flutter_inappwebview) return;
+      if (!blob || !window.flutter_inappwebview) {
+        return;
+      }
       const reader = new FileReader();
       reader.onloadend = function() {
         const dataUrl = String(reader.result || '');
         const comma = dataUrl.indexOf(',');
         const base64 = comma >= 0 ? dataUrl.substring(comma + 1) : '';
-        if (!base64) return;
+        if (!base64) {
+          return;
+        }
         window.flutter_inappwebview.callHandler(
           'CPRDownload',
           filename || 'CPR-Holoprint.mcpack',
@@ -59,12 +67,18 @@ class _ConverterPageState extends State<ConverterPage> {
     document.addEventListener('click', async function(event) {
       const target = event.target;
       const anchor = target && target.closest ? target.closest('a[download]') : null;
-      if (!anchor) return;
+      if (!anchor) {
+        return;
+      }
       const href = anchor.href || '';
-      if (!href.startsWith('blob:') && !href.startsWith('data:')) return;
+      if (!href.startsWith('blob:') && !href.startsWith('data:')) {
+        return;
+      }
       event.preventDefault();
       event.stopPropagation();
-      if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+      if (event.stopImmediatePropagation) {
+        event.stopImmediatePropagation();
+      }
       try {
         let blob = knownBlobs.get(href);
         if (!blob && href.startsWith('blob:')) {
@@ -91,7 +105,10 @@ class _ConverterPageState extends State<ConverterPage> {
       const suffix = $safeExtension;
       const inputs = Array.from(document.querySelectorAll('input[type="file"]'));
       const target = inputs.find((input) => (input.accept || '').toLowerCase().includes(suffix));
-      if (target) { target.click(); return true; }
+      if (target) { 
+        target.click(); 
+        return true; 
+      }
       return false;
     })();''';
     try {
@@ -100,7 +117,9 @@ class _ConverterPageState extends State<ConverterPage> {
         _showMessage('لم أجد خانة رفع هذا النوع داخل محرك HoloPrint. استخدم أزرار الرفع الموجودة في الصفحة.');
       }
     } on Exception {
-      if (mounted) _showMessage('تعذر فتح منتقي الملفات. حدّث صفحة المحول وحاول مرة ثانية.');
+      if (mounted) {
+        _showMessage('تعذر فتح منتقي الملفات. حدّث صفحة المحول وحاول مرة ثانية.');
+      }
     }
   }
 
@@ -112,9 +131,13 @@ class _ConverterPageState extends State<ConverterPage> {
     try {
       final fileName = sanitizeDownloadName(arguments[0]?.toString() ?? 'CPR-Holoprint.mcpack');
       final encoded = arguments[2]?.toString() ?? '';
-      if (encoded.isEmpty) throw const FormatException('ملف التنزيل فارغ.');
+      if (encoded.isEmpty) {
+        throw const FormatException('ملف التنزيل فارغ.');
+      }
       final bytes = Uint8List.fromList(base64Decode(encoded));
-      if (bytes.isEmpty) throw const FormatException('ملف التنزيل فارغ.');
+      if (bytes.isEmpty) {
+        throw const FormatException('ملف التنزيل فارغ.');
+      }
 
       final destination = await FilePicker.saveFile(
         dialogTitle: 'اختيار مكان حفظ حزمة Holoprint',
@@ -122,7 +145,9 @@ class _ConverterPageState extends State<ConverterPage> {
         bytes: bytes,
       );
       if (destination == null) {
-        if (mounted) _showMessage('تم إلغاء الحفظ.');
+        if (mounted) {
+          _showMessage('تم إلغاء الحفظ.');
+        }
         return;
       }
 
@@ -135,16 +160,24 @@ class _ConverterPageState extends State<ConverterPage> {
           bytes: bytes.length,
         ),
       );
-      if (mounted) widget.onExportSaved();
+      if (mounted) {
+        widget.onExportSaved();
+      }
       if (mounted) {
         _showMessage('تم حفظ $fileName. افتحه من مدير الملفات لاستيراده إلى Minecraft.');
       }
     } on FormatException catch (error) {
-      if (mounted) _showMessage('تعذر قراءة ملف الحزمة: ${error.message}');
+      if (mounted) {
+        _showMessage('تعذر قراءة ملف الحزمة: ${error.message}');
+      }
     } on Exception catch (error) {
-      if (mounted) _showMessage('فشل حفظ الحزمة: $error');
+      if (mounted) {
+        _showMessage('فشل حفظ الحزمة: $error');
+      }
     } finally {
-      if (mounted) setState(() => _isSaving = false);
+      if (mounted) {
+        setState(() => _isSaving = false);
+      }
     }
   }
 
@@ -235,7 +268,9 @@ class _ConverterPageState extends State<ConverterPage> {
                 ),
                 shouldOverrideUrlLoading: (controller, action) async {
                   final target = action.request.url;
-                  if (target == null) return NavigationActionPolicy.CANCEL;
+                  if (target == null) {
+                    return NavigationActionPolicy.CANCEL;
+                  }
                   if (target.host == 'holoprint-mc.github.io') {
                     return NavigationActionPolicy.ALLOW;
                   }
@@ -255,14 +290,20 @@ class _ConverterPageState extends State<ConverterPage> {
                   );
                 },
                 onLoadStart: (controller, url) {
-                  if (mounted) setState(() => _loadError = null);
+                  if (mounted) {
+                    setState(() => _loadError = null);
+                  }
                 },
                 onLoadStop: (controller, url) async {
                   await _installDownloadBridge();
-                  if (mounted) setState(() => _progress = 100);
+                  if (mounted) {
+                    setState(() => _progress = 100);
+                  }
                 },
                 onProgressChanged: (controller, progress) {
-                  if (mounted) setState(() => _progress = progress);
+                  if (mounted) {
+                    setState(() => _progress = progress);
+                  }
                 },
                 onReceivedError: (controller, request, error) {
                   if (request.isForMainFrame == true && mounted) {
