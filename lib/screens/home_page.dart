@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 
+import '../models/export_entry.dart';
 import '../services/history_store.dart';
 
 class HomePage extends StatelessWidget {
@@ -15,11 +16,11 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return FutureBuilder(
+    return FutureBuilder<List<ExportEntry>>(
       key: ValueKey(historyRevision),
       future: HistoryStore.load(),
       builder: (context, snapshot) {
-        final exports = snapshot.data ?? const [];
+        final exports = snapshot.data ?? const <ExportEntry>[];
         return ListView(
           padding: const EdgeInsets.fromLTRB(18, 10, 18, 28),
           children: [
